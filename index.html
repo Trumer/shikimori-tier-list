@@ -476,6 +476,98 @@
     color: var(--accent); min-width: 28px; text-align: right;
   }
 
+  /* ── Info button ───────────────────────────────────── */
+  .info-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted); font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0; min-height: unset; transition: all 0.15s; flex-shrink: 0;
+    line-height: 1;
+  }
+  .info-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(192,132,252,0.1); }
+
+  /* ── Modal ─────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 9000; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    padding: 1rem;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border-hover);
+    border-radius: 14px; padding: 1.8rem; max-width: 480px; width: 100%;
+    transform: translateY(12px); transition: transform 0.2s;
+    position: relative; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted); width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; font-size: 1rem; padding: 0; min-height: unset;
+    display: flex; align-items: center; justify-content: center; transition: all 0.12s;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--border-hover); }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem;
+    letter-spacing: 0.06em; margin-bottom: 1rem; color: var(--accent);
+    padding-right: 2rem;
+  }
+  .modal-rules { display: flex; flex-direction: column; gap: 10px; }
+  .rule-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .rule-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .rule-text { font-size: 0.85rem; line-height: 1.55; color: var(--text-muted); }
+  .rule-text strong { color: var(--text); }
+
+  /* ── Stats Mode ─────────────────────────────────────── */
+  #stats-mode { display: none; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; margin-bottom: 1.5rem;
+  }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem; position: relative;
+  }
+  .stat-card.wide { grid-column: 1 / -1; }
+  .stat-card-title {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted); margin-bottom: 1rem;
+  }
+
+  .donut-wrap { display: flex; align-items: center; gap: 1rem; }
+  .donut-svg { flex-shrink: 0; }
+  .donut-legend { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { color: var(--text-muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .legend-val { color: var(--text); font-weight: 700; font-size: 0.82rem; }
+
+  .stat-big-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .stat-big-item {
+    flex: 1; min-width: 100px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; text-align: center;
+  }
+  .stat-big-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--accent); line-height: 1; }
+  .stat-big-lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .score-dist-bars { display: flex; flex-direction: column; gap: 5px; }
+  .score-bar-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
+  .score-bar-label { width: 16px; text-align: right; color: var(--text-muted); font-weight: 700; flex-shrink: 0; }
+  .score-bar-track { flex: 1; height: 14px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .score-bar-count { width: 28px; text-align: right; color: var(--text-muted); flex-shrink: 0; }
+
   @media (max-width: 600px) {
     .logo { font-size: 2.4rem; }
     .input-row { flex-direction: column; }
@@ -502,6 +594,9 @@
     </button>
     <button class="mode-btn" onclick="switchMode('duel')" id="nav-duel">
       <span class="mode-icon">⚔️</span><span class="mode-label" data-i18n="modeDuel">Дуэли</span>
+    </button>
+    <button class="mode-btn" onclick="switchMode('stats')" id="nav-stats">
+      <span class="mode-icon">📊</span><span class="mode-label" data-i18n="modeStats">Статистика</span>
     </button>
   </nav>
 
@@ -608,10 +703,13 @@
     <div id="quiz-game" style="display:none">
       <div class="quiz-header">
         <span class="quiz-title" data-i18n="modeQuiz">Угадай оценку</span>
-        <div class="quiz-stats">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="quiz-stats">
           <span>✅ <span class="quiz-stat-num" id="q-correct">0</span> <span data-i18n="qCorrect">угадано</span></span>
           <span>📊 <span class="quiz-stat-num" id="q-avg-diff">—</span> <span data-i18n="qAvgDiff">ср. разрыв</span></span>
           <span>🎯 <span class="quiz-stat-num" id="q-done">0</span>/<span id="q-total">0</span></span>
+          </div>
+          <button class="info-btn" onclick="openModal('quiz')" title="Правила">i</button>
         </div>
       </div>
       <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
@@ -682,9 +780,12 @@
     <div id="duel-game" style="display:none">
       <div class="duel-header">
         <span class="quiz-title" data-i18n="modeDuel">Дуэли</span>
-        <div class="quiz-stats">
-          <span>⚔️ <span class="quiz-stat-num" id="d-round">1</span>/<span id="d-total-rounds">—</span></span>
-          <span>🏆 <span class="quiz-stat-num" id="d-leader-name">—</span></span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="quiz-stats">
+            <span>⚔️ <span class="quiz-stat-num" id="d-round">1</span>/<span id="d-total-rounds">—</span></span>
+            <span>🏆 <span class="quiz-stat-num" id="d-leader-name">—</span></span>
+          </div>
+          <button class="info-btn" onclick="openModal('duel')" title="Правила">i</button>
         </div>
       </div>
       <div class="duel-progress-bar"><div class="duel-progress-fill" id="duel-progress-fill"></div></div>
@@ -720,6 +821,46 @@
       </div>
     </div>
   </div><!-- /duel-mode -->
+
+  <!-- ── STATS MODE ──────────────────────────────────────────── -->
+  <div id="stats-mode">
+    <div id="stats-no-profile" class="no-profile-notice">
+      <p>Сначала загрузи профиль Shikimori на вкладке <strong>Тирлист</strong> — статистика появится здесь 📊</p>
+    </div>
+    <div id="stats-content" style="display:none">
+      <div class="stat-card wide" style="margin-bottom:14px">
+        <div class="stat-card-title">Общая сводка</div>
+        <div class="stat-big-row" id="stats-summary"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-title">Распределение оценок</div>
+          <div id="chart-scores"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Статус просмотра</div>
+          <div class="donut-wrap" id="chart-status"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Типы аниме</div>
+          <div class="donut-wrap" id="chart-kinds"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Гистограмм оценок</div>
+          <div id="chart-score-hist"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /stats-mode -->
+
+  <!-- ── INFO MODAL ──────────────────────────────────────────── -->
+  <div class="modal-overlay" id="info-modal" onclick="closeModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <div class="modal-title" id="modal-title">Правила</div>
+      <div class="modal-rules" id="modal-body"></div>
+    </div>
+  </div>
 
 </div>
 <script>
@@ -775,6 +916,7 @@ const STRINGS = {
     dWinner: 'ПОБЕДИТЕЛЬ',
     dResultTitle: 'Твой личный рейтинг',
     dRestart: 'Новый турнир',
+    modeStats: 'Статистика',
   },
   en: {
     tagline: 'Shikimori · Drag & Drop · S/A/B/C/D',
@@ -825,6 +967,7 @@ const STRINGS = {
     dWinner: 'WINNER',
     dResultTitle: 'Your Personal Ranking',
     dRestart: 'New Tournament',
+    modeStats: 'Statistics',
   }
 };
 
@@ -1346,13 +1489,15 @@ function switchMode(mode) {
   document.getElementById('tierlist-mode').style.display = mode === 'tierlist' ? 'block' : 'none';
   document.getElementById('quiz-mode').style.display     = mode === 'quiz'     ? 'block' : 'none';
   document.getElementById('duel-mode').style.display     = mode === 'duel'     ? 'block' : 'none';
+  document.getElementById('stats-mode').style.display    = mode === 'stats'    ? 'block' : 'none';
 
   document.querySelectorAll('.mode-btn').forEach(function(b) {
     b.classList.toggle('active', b.id === 'nav-' + mode);
   });
 
-  if (mode === 'quiz') initQuizMode();
-  if (mode === 'duel') initDuelMode();
+  if (mode === 'quiz')  initQuizMode();
+  if (mode === 'duel')  initDuelMode();
+  if (mode === 'stats') initStatsMode();
 }
 
 // ── QUIZ ─────────────────────────────────────────────────────────────────────
@@ -1394,10 +1539,11 @@ function renderQuizCard() {
   var pct = (quizIndex / quizQueue.length) * 100;
   document.getElementById('quiz-progress-fill').style.width = pct + '%';
 
-  // Image
+  // Image — use original for better quality in quiz
   var imgWrap = document.getElementById('qc-img-wrap');
-  if (anime.image && anime.image.preview) {
-    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=440&output=webp';
+  if (anime.image && (anime.image.original || anime.image.preview)) {
+    var imgPath = anime.image.original || anime.image.preview;
+    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + imgPath) + '&w=600&output=webp';
     imgWrap.innerHTML = '<img src="' + src + '" alt="">';
     var img = imgWrap.querySelector('img');
     img.onload = function() { img.classList.add('loaded'); };
@@ -1592,8 +1738,9 @@ function renderDuelSide(side, rate) {
   var year    = anime.aired_on ? anime.aired_on.slice(0,4) : '';
   var kind    = anime.kind ? anime.kind.toUpperCase() : '';
 
-  if (anime.image && anime.image.preview) {
-    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=400&output=webp';
+  if (anime.image && (anime.image.original || anime.image.preview)) {
+    var imgPath = anime.image.original || anime.image.preview;
+    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + imgPath) + '&w=600&output=webp';
     imgWrap.innerHTML = '<img src="' + src + '" alt="">';
     var img = imgWrap.querySelector('img');
     img.onload = function() { img.classList.add('loaded'); };
@@ -1679,6 +1826,211 @@ function showDuelResult() {
   });
 
   document.getElementById('duel-result').classList.add('visible');
+}
+
+// ── MODAL (info / rules) ─────────────────────────────────────────────────────
+var RULES = {
+  quiz: {
+    ru: {
+      title: '🎯 Угадай оценку',
+      items: [
+        { icon: '👀', text: '<strong>Смотри на постер</strong> — название и год видны, оценка скрыта за знаком «?»' },
+        { icon: '🔢', text: '<strong>Нажми цифру</strong> от 1 до 10 — это твоя догадка о собственной оценке на Shikimori' },
+        { icon: '✨', text: '<strong>Раскрытие:</strong> покажет твою настоящую оценку и среднюю оценку сообщества Shikimori' },
+        { icon: '🎯', text: '<strong>Точное попадание</strong> — угадал точно. <strong>±1 балл</strong> — почти. Больше — мимо' },
+        { icon: '📊', text: 'В конце 20 вопросов увидишь <strong>итоговую точность</strong> в процентах' },
+      ]
+    },
+    en: {
+      title: '🎯 Guess the Score',
+      items: [
+        { icon: '👀', text: '<strong>Look at the poster</strong> — title and year are visible, score is hidden behind «?»' },
+        { icon: '🔢', text: '<strong>Pick a number</strong> from 1 to 10 — your guess for your own Shikimori score' },
+        { icon: '✨', text: '<strong>Reveal:</strong> shows your real score and the community average on Shikimori' },
+        { icon: '🎯', text: '<strong>Exact hit</strong> = perfect. <strong>±1 point</strong> = close. More = miss' },
+        { icon: '📊', text: 'After 20 questions you\'ll see your <strong>accuracy percentage</strong>' },
+      ]
+    }
+  },
+  duel: {
+    ru: {
+      title: '⚔️ Дуэли',
+      items: [
+        { icon: '🃏', text: 'Два аниме из твоего списка — <strong>нажми на то, которое считаешь лучше</strong>' },
+        { icon: '🔁', text: 'До <strong>30 раундов</strong> с разными парами — выборка случайная каждый раз' },
+        { icon: '🏆', text: 'После каждого выбора <strong>победитель</strong> подсвечивается, оценки раскрываются' },
+        { icon: '🥇', text: 'В конце — <strong>личный подиум</strong>: топ-10 аниме по числу побед' },
+        { icon: '💡', text: 'Метод попарного сравнения даёт <strong>более честный рейтинг</strong>, чем оценки по памяти' },
+      ]
+    },
+    en: {
+      title: '⚔️ Duels',
+      items: [
+        { icon: '🃏', text: 'Two anime from your list — <strong>tap the one you think is better</strong>' },
+        { icon: '🔁', text: 'Up to <strong>30 rounds</strong> with random matchups every time' },
+        { icon: '🏆', text: 'After each pick the <strong>winner glows</strong> and scores are revealed' },
+        { icon: '🥇', text: 'At the end — your <strong>personal podium</strong>: top 10 by win count' },
+        { icon: '💡', text: 'Pairwise comparison gives a <strong>more honest ranking</strong> than scores from memory' },
+      ]
+    }
+  }
+};
+
+function openModal(type) {
+  var lang = RULES[type][currentLang] || RULES[type].ru;
+  document.getElementById('modal-title').textContent = lang.title;
+  var body = document.getElementById('modal-body');
+  body.innerHTML = lang.items.map(function(item) {
+    return '<div class="rule-item"><span class="rule-icon">' + item.icon + '</span><span class="rule-text">' + item.text + '</span></div>';
+  }).join('');
+  document.getElementById('info-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('info-modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('info-modal').classList.remove('open');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function initStatsMode() {
+  var hasData = allRates && allRates.length > 0;
+  document.getElementById('stats-no-profile').style.display  = hasData ? 'none'  : 'block';
+  document.getElementById('stats-content').style.display     = hasData ? 'block' : 'none';
+  if (!hasData) return;
+  renderStats();
+}
+
+function renderStats() {
+  var rates = allRates;
+  var total = rates.length;
+  var completed = rates.filter(function(r) { return r._status === 'completed'; }).length;
+  var dropped   = rates.filter(function(r) { return r._status === 'dropped'; }).length;
+  var rated     = rates.filter(function(r) { return r.score > 0; }).length;
+  var scoreSum  = rates.reduce(function(s, r) { return s + (r.score || 0); }, 0);
+  var avgScore  = rated > 0 ? (scoreSum / rated).toFixed(2) : '—';
+
+  // Summary row
+  var summary = document.getElementById('stats-summary');
+  summary.innerHTML = [
+    { n: total,     l: 'всего аниме' },
+    { n: completed, l: 'просмотрено' },
+    { n: dropped,   l: 'брошено' },
+    { n: rated,     l: 'с оценкой' },
+    { n: avgScore,  l: 'средняя оценка' },
+  ].map(function(s) {
+    return '<div class="stat-big-item"><div class="stat-big-num">' + s.n + '</div><div class="stat-big-lbl">' + s.l + '</div></div>';
+  }).join('');
+
+  // Score distribution bar chart
+  var scoreCounts = {};
+  for (var i = 1; i <= 10; i++) scoreCounts[i] = 0;
+  rates.forEach(function(r) { if (r.score > 0) scoreCounts[r.score]++; });
+  var maxCount = Math.max.apply(null, Object.values(scoreCounts));
+  var scoreColors = {
+    1: '#ff6b6b', 2: '#ff6b6b', 3: '#ff9f43', 4: '#ff9f43',
+    5: '#ffd32a', 6: '#ffd32a', 7: '#7bed9f', 8: '#7bed9f',
+    9: '#c084fc', 10: '#c084fc'
+  };
+  var scoresEl = document.getElementById('chart-scores');
+  scoresEl.innerHTML = '<div class="score-dist-bars">' +
+    Object.keys(scoreCounts).reverse().map(function(sc) {
+      var cnt = scoreCounts[sc];
+      var pct = maxCount > 0 ? Math.round(cnt / maxCount * 100) : 0;
+      return '<div class="score-bar-row">' +
+        '<span class="score-bar-label">' + sc + '</span>' +
+        '<div class="score-bar-track"><div class="score-bar-fill" style="width:' + pct + '%;background:' + scoreColors[sc] + '"></div></div>' +
+        '<span class="score-bar-count">' + cnt + '</span>' +
+        '</div>';
+    }).join('') + '</div>';
+
+  // Status donut
+  renderDonut('chart-status', [
+    { label: 'Просмотрено', value: completed, color: '#7bed9f' },
+    { label: 'Брошено',     value: dropped,   color: '#ff6b6b' },
+  ]);
+
+  // Kind donut
+  var kindMap = {};
+  rates.forEach(function(r) {
+    var k = (r.anime && r.anime.kind) || 'other';
+    kindMap[k] = (kindMap[k] || 0) + 1;
+  });
+  var kindColors = { tv: '#c084fc', movie: '#74b9ff', ova: '#ff9f43', ona: '#ffd32a', special: '#7bed9f', other: '#6b6b80' };
+  var kindLabels = { tv: 'TV', movie: 'Фильм', ova: 'OVA', ona: 'ONA', special: 'Special', other: 'Другое' };
+  var kindData = Object.keys(kindMap).sort(function(a,b){ return kindMap[b]-kindMap[a]; }).slice(0,6).map(function(k) {
+    return { label: kindLabels[k] || k.toUpperCase(), value: kindMap[k], color: kindColors[k] || '#6b6b80' };
+  });
+  renderDonut('chart-kinds', kindData);
+
+  // Score histogram (donut: score buckets)
+  var buckets = { '1-3': 0, '4-5': 0, '6-7': 0, '8-9': 0, '10': 0 };
+  rates.forEach(function(r) {
+    if (!r.score) return;
+    if (r.score <= 3) buckets['1-3']++;
+    else if (r.score <= 5) buckets['4-5']++;
+    else if (r.score <= 7) buckets['6-7']++;
+    else if (r.score <= 9) buckets['8-9']++;
+    else buckets['10']++;
+  });
+  var histEl = document.getElementById('chart-score-hist');
+  histEl.className = 'donut-wrap';
+  histEl.innerHTML = '';
+  renderDonut('chart-score-hist', [
+    { label: '1–3 плохо',   value: buckets['1-3'], color: '#ff6b6b' },
+    { label: '4–5 так себе',value: buckets['4-5'], color: '#ff9f43' },
+    { label: '6–7 норм',    value: buckets['6-7'], color: '#ffd32a' },
+    { label: '8–9 хорошо',  value: buckets['8-9'], color: '#7bed9f' },
+    { label: '10 шедевр',   value: buckets['10'],  color: '#c084fc' },
+  ]);
+}
+
+function renderDonut(containerId, data) {
+  var container = document.getElementById(containerId);
+  var total = data.reduce(function(s, d) { return s + d.value; }, 0);
+  if (total === 0) { container.innerHTML = '<span style="color:var(--text-dim);font-size:0.82rem">Нет данных</span>'; return; }
+
+  var size = 110;
+  var cx = size / 2, cy = size / 2;
+  var r = 38, strokeW = 18;
+  var circumference = 2 * Math.PI * r;
+
+  // Build SVG arcs
+  var svgParts = [];
+  var offset = 0;
+  var gapDeg = 2; // gap between slices in degrees
+  var gapRatio = gapDeg / 360;
+
+  data.forEach(function(d) {
+    if (!d.value) return;
+    var frac = d.value / total;
+    var dash = (frac - gapRatio) * circumference;
+    if (dash <= 0) return;
+    var gap  = circumference - dash;
+    svgParts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + d.color + '" stroke-width="' + strokeW + '" stroke-dasharray="' + dash.toFixed(2) + ' ' + gap.toFixed(2) + '" stroke-dashoffset="' + (-offset * circumference).toFixed(2) + '" transform="rotate(-90 ' + cx + ' ' + cy + ')"/>');
+    offset += frac;
+  });
+
+  // Center text
+  svgParts.push('<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" fill="var(--text)" font-family="Bebas Neue,sans-serif" font-size="22" letter-spacing="0.05em">' + total + '</text>');
+  svgParts.push('<text x="' + cx + '" y="' + (cy + 12) + '" text-anchor="middle" fill="var(--text-muted)" font-family="Nunito,sans-serif" font-size="9">тайтлов</text>');
+
+  var svg = '<svg class="donut-svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+    '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="var(--surface2)" stroke-width="' + strokeW + '"/>' +
+    svgParts.join('') + '</svg>';
+
+  // Legend
+  var legend = '<div class="donut-legend">' + data.filter(function(d){ return d.value > 0; }).map(function(d) {
+    var pct = Math.round(d.value / total * 100);
+    return '<div class="legend-item"><span class="legend-dot" style="background:' + d.color + '"></span><span class="legend-label">' + d.label + '</span><span class="legend-val">' + d.value + ' <span style="color:var(--text-dim);font-weight:400;font-size:0.7rem">(' + pct + '%)</span></span></div>';
+  }).join('') + '</div>';
+
+  container.className = 'donut-wrap';
+  container.innerHTML = svg + legend;
 }
 </script>
 </body>
