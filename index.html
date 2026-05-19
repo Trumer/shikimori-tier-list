@@ -195,11 +195,14 @@
   .anime-card .card-year { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
 
   /* dropped badge */
-  .status-badge {
-    position: absolute; bottom: 28px; left: 0; right: 0;
-    background: rgba(255,107,107,0.85); color: #fff;
-    font-size: 8px; font-weight: 700; text-align: center;
-    padding: 2px 0; letter-spacing: 0.04em; pointer-events: none;
+  .dropped-x {
+    position: absolute; bottom: 28px; right: 4px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(220,38,38,0.85);
+    color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1; pointer-events: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   }
 
   .score-badge {
@@ -294,7 +297,8 @@
         <option value="completed" data-i18n="filterCompleted">Просмотрено</option>
         <option value="dropped" data-i18n="filterDropped">Брошено</option>
       </select>
-    </div>
+    
+      <label style="margin-left:6px"><input type="checkbox" id="score-toggle" checked onchange="applyFilter()" style="margin-right:4px;accent-color:var(--accent)"><span data-i18n="showScores"></span></label></div>
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="progress-label" id="progress-label" data-i18n="loading">Загружаем...</div>
@@ -382,6 +386,7 @@ const STRINGS = {
     droppedLabel: 'Брошено',
     errNotFound: 'Пользователь не найден. Проверь никнейм.',
     errConnect: 'Не удаётся подключиться к Shikimori. Попробуй позже.',
+    showScores: 'Показывать оценки',
     returnTitle: 'Вернуть в пул',
   },
   en: {
@@ -447,23 +452,71 @@ let draggedCard = null;
 const PROXIES = [
   function(u) { return 'https://corsproxy.io/?url=' + encodeURIComponent(u); },
   function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
-  function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; }
+  function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; },
+  function(u) { return 'https://proxy.cors.sh/' + u; },
+  function(u) { return 'https://cors-anywhere.herokuapp.com/' + u; }
 ];
 
+async function fetchWithTimeout(url, ms) {
+  var ctrl = new AbortController();
+  var timer = setTimeout(function() { ctrl.abort(); }, ms);
+  try {
+    var res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    return res;
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+// Race all proxies — first valid response wins
 async function apiFetch(path) {
   var url = API_BASE + path;
-  var lastErr = null;
-  for (var i = 0; i < PROXIES.length; i++) {
-    try {
-      var res = await fetch(PROXIES[i](url));
-      if (res.status === 404) throw new Error(t('errNotFound'));
-      if (res.ok) return res;
-    } catch(e) {
-      if (e.message === t('errNotFound') || e.message === STRINGS.ru.errNotFound) throw e;
-      lastErr = e;
-    }
-  }
-  throw lastErr || new Error(t('errConnect'));
+
+  var controllers = [];
+  var promises = PROXIES.map(function(proxy, i) {
+    var ctrl = new AbortController();
+    controllers.push(ctrl);
+    return fetch(proxy(url), { signal: ctrl.signal })
+      .then(function(res) {
+        if (res.status === 404) return Promise.reject(new Error('__404__'));
+        if (!res.ok) return Promise.reject(new Error('bad_status_' + res.status));
+        // Cancel all other requests
+        controllers.forEach(function(c, j) { if (j !== i) try { c.abort(); } catch(e){} });
+        currentProxy = i;
+        return res;
+      });
+  });
+
+  // Use allSettled-style race: resolve on first success, reject only if all fail
+  return new Promise(function(resolve, reject) {
+    var failed = 0;
+    var done = false;
+    promises.forEach(function(p) {
+      p.then(function(res) {
+        if (!done) { done = true; resolve(res); }
+      }).catch(function(e) {
+        if (e.message === '__404__') {
+          if (!done) { done = true; reject(new Error(t('errNotFound'))); }
+          return;
+        }
+        failed++;
+        if (failed === PROXIES.length && !done) {
+          done = true;
+          reject(new Error(t('errConnect')));
+        }
+      });
+    });
+    // Global timeout 15s
+    setTimeout(function() {
+      if (!done) {
+        done = true;
+        controllers.forEach(function(c) { try { c.abort(); } catch(e){} });
+        reject(new Error(t('errConnect')));
+      }
+    }, 15000);
+  });
 }
 
 function parseUsername(s) {
@@ -480,6 +533,7 @@ function setProgress(pct, label) {
   var wrap = document.getElementById('progress-wrap');
   var fill = document.getElementById('progress-fill');
   var lbl  = document.getElementById('progress-label');
+  if (pct === -1) { return; } // keep current state
   if (pct <= 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   fill.style.width = pct + '%';
@@ -503,10 +557,25 @@ async function loadProfile() {
   document.getElementById('load-btn').disabled = true;
 
   try {
-    // Step 1: get user id
-    var userRes = await apiFetch('/users/' + encodeURIComponent(username));
-    var user = await userRes.json();
-    setProgress(30, t('loaded') + ' ' + user.nickname + '...');
+    // Step 1: get user id — try direct first, then search
+    var user = null;
+    try {
+      var userRes = await apiFetch('/users/' + encodeURIComponent(username));
+      if (userRes.ok) user = await userRes.json();
+    } catch(e) {}
+    if (!user || user.id === undefined) {
+      // fallback: search by nickname
+      var searchRes = await apiFetch('/users?search=' + encodeURIComponent(username) + '&limit=5');
+      var searchArr = await searchRes.json();
+      if (!searchArr || !searchArr.length) throw new Error(t('errNotFound'));
+      // pick exact match first, else first result
+      user = searchArr.find(function(u) {
+        return u.nickname.toLowerCase() === username.toLowerCase();
+      }) || searchArr[0];
+    }
+    if (!user || !user.id) throw new Error(t('errNotFound'));
+    var proxyNames = ['corsproxy.io', 'allorigins', 'thingproxy'];
+    setProgress(30, t('loaded') + ' ' + user.nickname + ' (via ' + (proxyNames[currentProxy] || 'proxy') + ')...');
 
     // Step 2: fetch completed + dropped in ONE request each (limit=5000)
     var [completedRes, droppedRes] = await Promise.all([
@@ -561,10 +630,11 @@ function applyFilter() {
     return true;
   });
 
-  renderPool(filtered, q);
+  var showScores = document.getElementById('score-toggle') ? document.getElementById('score-toggle').checked : true;
+  renderPool(filtered, q, showScores);
 }
 
-function renderPool(rates, q) {
+function renderPool(rates, q, showScores) { if (showScores === undefined) showScores = true;
   var pool = document.getElementById('pool');
   pool.innerHTML = '';
 
@@ -581,6 +651,7 @@ function renderPool(rates, q) {
   }
 
   visible.forEach(function(r) {
+    r._showScore = showScores;
     if (document.querySelector('.tier-drop [data-rate-id="' + r.id + '"]')) return;
     pool.appendChild(makeCard(r));
   });
@@ -616,10 +687,10 @@ function makeCard(rate) {
   if (rate.score >= 9) scoreCls = 'high';
   else if (rate.score >= 7) scoreCls = 'mid';
   else if (rate.score > 0) scoreCls = 'low';
-  var scoreHTML = rate.score > 0 ? '<div class="score-badge ' + scoreCls + '">' + rate.score + '</div>' : '';
+  var scoreHTML = (rate.score > 0 && rate._showScore !== false) ? '<div class="score-badge ' + scoreCls + '">' + rate.score + '</div>' : '';
 
   var droppedBadge = rate._status === 'dropped'
-    ? '<div class="status-badge">' + t('droppedLabel') + '</div>' : '';
+    ? '<div class="dropped-x">✕</div>' : '';
 
   div.innerHTML = posterHTML + scoreHTML + droppedBadge +
     '<div class="card-info"><div class="card-title">' + title + '</div><div class="card-year">' + year + '</div></div>' +
