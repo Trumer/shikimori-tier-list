@@ -416,8 +416,8 @@ let draggedCard = null;
 
 // Proxies — only for API calls, NOT for images
 const PROXIES = [
-  function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
   function(u) { return 'https://corsproxy.io/?url=' + encodeURIComponent(u); },
+  function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
   function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; }
 ];
 
@@ -480,7 +480,7 @@ async function fetchAllPages(userId, status) {
   while (true) {
     // Fetch up to 5 pages in parallel
     var pages = [];
-    for (var i = 0; i < 5; i++) pages.push(page + i);
+    for (var i = 0; i < 3; i++) pages.push(page + i);
     var results = await Promise.all(pages.map(function(p) {
       return apiFetch('/users/' + userId + '/anime_rates?status=' + status + '&limit=100&page=' + p)
         .then(function(r) { return r.ok ? r.json() : []; })
@@ -495,7 +495,7 @@ async function fetchAllPages(userId, status) {
     if (done) break;
     page += 5;
     // Small delay to be nice to the API
-    await sleep(150);
+    await sleep(300);
     setProgress(Math.min(20 + Math.floor(all.length / 5), 88),
       t('loaded') + ' ' + all.length + ' ' + t('anime') + '...');
   }
@@ -614,7 +614,7 @@ function makeCard(rate) {
   var posterHTML;
   if (anime.image && anime.image.preview) {
     // Direct URL — much faster than allorigins proxy for images
-    var imgSrc = 'https://shikimori.one' + anime.image.preview;
+    var imgSrc = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=185&output=webp';
     posterHTML = '<img src="' + imgSrc + '" alt="" loading="lazy" crossorigin="anonymous">';
   } else {
     posterHTML = '<div class="no-poster">' + title + '</div>';
@@ -641,7 +641,12 @@ function makeCard(rate) {
       // If direct load fails, fall back to proxy
       if (!img.dataset.proxied) {
         img.dataset.proxied = '1';
-        img.src = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview);
+        // try direct URL (works on https hosting)
+        img.src = 'https://shikimori.one' + anime.image.preview;
+      } else if (!img.dataset.proxied2) {
+        img.dataset.proxied2 = '1';
+        // last resort: corsproxy for image
+        img.src = 'https://corsproxy.io/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview);
       } else {
         img.replaceWith(Object.assign(document.createElement('div'), {
           className: 'no-poster', textContent: title
