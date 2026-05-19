@@ -248,16 +248,262 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+  /* ── Mode Navigation ───────────────────────────────── */
+  .mode-nav {
+    display: flex; gap: 4px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 5px; margin-bottom: 2rem;
+  }
+  .mode-btn {
+    flex: 1; background: transparent; border: none; color: var(--text-muted);
+    font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600;
+    padding: 8px 12px; height: auto; min-height: unset; border-radius: 6px;
+    cursor: pointer; transition: all 0.18s; display: flex; align-items: center;
+    justify-content: center; gap: 7px;
+  }
+  .mode-btn.active { background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
+  .mode-btn:hover:not(.active) { color: var(--text); }
+  .mode-btn .mode-icon { font-size: 1rem; }
+
+  /* ── No-profile notice ─────────────────────────────── */
+  .no-profile-notice {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2.5rem; text-align: center;
+    color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;
+  }
+  .no-profile-notice strong { color: var(--accent); }
+
+  /* ── Quiz Mode ─────────────────────────────────────── */
+  #quiz-mode { display: none; }
+
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+  .quiz-stats { display: flex; gap: 16px; font-size: 0.82rem; color: var(--text-muted); }
+  .quiz-stats span { display: flex; align-items: center; gap: 5px; }
+  .quiz-stat-num { font-weight: 700; color: var(--text); }
+
+  .quiz-card-wrap {
+    display: flex; justify-content: center; margin-bottom: 2rem;
+  }
+  .quiz-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; width: 220px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    transition: transform 0.18s; position: relative;
+  }
+  .quiz-card:hover { transform: translateY(-4px); }
+  .quiz-card img {
+    width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
+    opacity: 0; transition: opacity 0.35s;
+  }
+  .quiz-card img.loaded { opacity: 1; }
+  .quiz-card .no-poster {
+    width: 100%; aspect-ratio: 2/3; background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--text-muted); padding: 12px; text-align: center;
+  }
+  .quiz-card-title {
+    padding: 12px 14px 14px; font-size: 0.88rem; font-weight: 600; line-height: 1.4;
+    text-align: center;
+  }
+  .quiz-card-year { font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 2px; padding-bottom: 12px; }
+
+  .quiz-score-cover {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(13,13,15,0.65); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px; transition: opacity 0.3s;
+    font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: var(--accent);
+    letter-spacing: 0.05em; pointer-events: none;
+  }
+  .quiz-score-cover.revealed { opacity: 0; }
+
+  .quiz-score-bar {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;
+  }
+  .score-btn {
+    width: 46px; height: 46px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted); font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem; cursor: pointer; transition: all 0.12s;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; min-height: unset;
+  }
+  .score-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .score-btn.selected { background: var(--accent); border-color: var(--accent); color: #0d0d0f; transform: translateY(-2px); }
+
+  .quiz-reveal-area {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem 1.5rem;
+    margin-bottom: 1.5rem; display: none; text-align: center;
+  }
+  .quiz-reveal-area.visible { display: block; }
+  .reveal-row { display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .reveal-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .reveal-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+  .reveal-score { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; line-height: 1; }
+  .reveal-score.your { color: var(--accent); }
+  .reveal-score.shiki { color: #74b9ff; }
+  .reveal-diff { font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; }
+  .reveal-diff strong { color: var(--text); }
+
+  .quiz-actions { display: flex; justify-content: center; gap: 10px; }
+
+  .quiz-progress-bar {
+    height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .quiz-progress-fill {
+    height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.35s ease;
+  }
+
+  .quiz-result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; text-align: center; display: none;
+  }
+  .quiz-result-card.visible { display: block; }
+  .result-big { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: var(--accent); line-height: 1; }
+  .result-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 1.5rem; }
+  .result-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .result-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .result-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--text); line-height: 1; }
+  .result-stat-lbl { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── Duel Mode ─────────────────────────────────────── */
+  #duel-mode { display: none; }
+
+  .duel-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+  }
+  .duel-progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 2rem; }
+  .duel-progress-fill { height: 100%; background: var(--tier-a); border-radius: 2px; transition: width 0.35s ease; }
+
+  .duel-arena {
+    display: flex; align-items: stretch; gap: 0; margin-bottom: 1.5rem;
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    background: var(--surface);
+  }
+  .duel-side {
+    flex: 1; display: flex; flex-direction: column; cursor: pointer;
+    transition: background 0.15s; position: relative; overflow: hidden;
+  }
+  .duel-side:hover { background: rgba(255,255,255,0.04); }
+  .duel-side:active { background: rgba(255,255,255,0.08); }
+  .duel-side.winner { background: rgba(192,132,252,0.12); }
+  .duel-side.loser { background: rgba(0,0,0,0.2); }
+
+  .duel-side img {
+    width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
+    opacity: 0; transition: opacity 0.35s;
+  }
+  .duel-side img.loaded { opacity: 1; }
+  .duel-side .no-poster {
+    width: 100%; aspect-ratio: 2/3; background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--text-muted); padding: 10px; text-align: center; line-height: 1.4;
+  }
+
+  .duel-side-info { padding: 12px 14px 16px; flex: 1; }
+  .duel-side-title { font-size: 0.85rem; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+  .duel-side-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+  .duel-vs {
+    width: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--text-dim);
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+
+  .duel-win-badge {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #0d0d0f;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.05em;
+    padding: 3px 14px; border-radius: 20px; opacity: 0;
+    transition: opacity 0.25s; pointer-events: none;
+    white-space: nowrap;
+  }
+  .duel-side.winner .duel-win-badge { opacity: 1; }
+
+  .duel-side-score-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.75); color: #fff;
+    font-size: 11px; font-weight: 700; border-radius: 5px; padding: 2px 6px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .duel-side.winner .duel-side-score-badge,
+  .duel-side.loser  .duel-side-score-badge { opacity: 1; }
+
+  .duel-actions { display: flex; justify-content: center; gap: 10px; }
+
+  .duel-result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; display: none;
+  }
+  .duel-result-card.visible { display: block; }
+  .duel-result-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; }
+
+  .duel-podium {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem;
+  }
+  .podium-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 12px;
+    transition: border-color 0.15s;
+  }
+  .podium-row:first-child { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.05); }
+  .podium-row:nth-child(2) { border-color: rgba(192,192,192,0.3); }
+  .podium-row:nth-child(3) { border-color: rgba(205,127,50,0.3); }
+  .podium-rank {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--text-dim);
+    min-width: 28px; text-align: center; line-height: 1;
+  }
+  .podium-row:first-child .podium-rank { color: #ffd32a; }
+  .podium-row:nth-child(2) .podium-rank { color: #aaaaaa; }
+  .podium-row:nth-child(3) .podium-rank { color: #cd7f32; }
+  .podium-img {
+    width: 38px; height: 54px; object-fit: cover; border-radius: 4px; flex-shrink: 0;
+    background: var(--surface);
+  }
+  .podium-info { flex: 1; min-width: 0; }
+  .podium-title { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .podium-wins { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .podium-score-badge {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem;
+    color: var(--accent); min-width: 28px; text-align: right;
+  }
+
   @media (max-width: 600px) {
     .logo { font-size: 2.4rem; }
     .input-row { flex-direction: column; }
     .actions-right { margin-left: 0; }
     header { flex-direction: column; gap: 12px; }
+    .mode-btn .mode-label { display: none; }
+    .mode-btn { padding: 10px; }
+    .duel-arena { flex-direction: column; }
+    .duel-vs { width: 100%; height: 36px; border-left: none; border-right: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .duel-side img, .duel-side .no-poster { aspect-ratio: 16/7; }
   }
 </style>
 </head>
 <body>
 <div class="page">
+
+  <!-- Mode Navigation -->
+  <nav class="mode-nav">
+    <button class="mode-btn active" onclick="switchMode('tierlist')" id="nav-tierlist">
+      <span class="mode-icon">⊞</span><span class="mode-label" data-i18n="modeTierlist">Тирлист</span>
+    </button>
+    <button class="mode-btn" onclick="switchMode('quiz')" id="nav-quiz">
+      <span class="mode-icon">🎯</span><span class="mode-label" data-i18n="modeQuiz">Угадай оценку</span>
+    </button>
+    <button class="mode-btn" onclick="switchMode('duel')" id="nav-duel">
+      <span class="mode-icon">⚔️</span><span class="mode-label" data-i18n="modeDuel">Дуэли</span>
+    </button>
+  </nav>
 
   <header>
     <div class="header-left">
@@ -269,6 +515,8 @@
       <button class="lang-btn" onclick="setLang('en')">EN</button>
     </div>
   </header>
+
+  <div id="tierlist-mode">
 
   <div class="import-card">
     <h2 data-i18n="loadProfile">Загрузить профиль</h2>
@@ -350,9 +598,130 @@
     </div>
   </div>
 
-</div>
+  </div><!-- /tierlist-mode -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- ── QUIZ MODE ───────────────────────────────────────────── -->
+  <div id="quiz-mode">
+    <div id="quiz-no-profile" class="no-profile-notice">
+      <p>Сначала загрузи профиль Shikimori на вкладке <strong>Тирлист</strong> — потом возвращайся сюда 👾</p>
+    </div>
+    <div id="quiz-game" style="display:none">
+      <div class="quiz-header">
+        <span class="quiz-title" data-i18n="modeQuiz">Угадай оценку</span>
+        <div class="quiz-stats">
+          <span>✅ <span class="quiz-stat-num" id="q-correct">0</span> <span data-i18n="qCorrect">угадано</span></span>
+          <span>📊 <span class="quiz-stat-num" id="q-avg-diff">—</span> <span data-i18n="qAvgDiff">ср. разрыв</span></span>
+          <span>🎯 <span class="quiz-stat-num" id="q-done">0</span>/<span id="q-total">0</span></span>
+        </div>
+      </div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+
+      <div class="quiz-card-wrap">
+        <div class="quiz-card" id="quiz-card">
+          <div id="qc-img-wrap"></div>
+          <div class="quiz-score-cover" id="quiz-cover">?</div>
+          <div class="quiz-card-title" id="qc-title"></div>
+          <div class="quiz-card-year" id="qc-year"></div>
+        </div>
+      </div>
+
+      <div class="quiz-score-bar" id="quiz-score-bar">
+        <!-- 1–10 buttons rendered by JS -->
+      </div>
+
+      <div class="quiz-reveal-area" id="quiz-reveal">
+        <div class="reveal-row">
+          <div class="reveal-item">
+            <span class="reveal-label" data-i18n="qYourGuess">Твоя оценка</span>
+            <span class="reveal-score your" id="rv-guess">—</span>
+          </div>
+          <div class="reveal-item">
+            <span class="reveal-label" data-i18n="qYourReal">Оценка в Shiki</span>
+            <span class="reveal-score your" id="rv-real">—</span>
+          </div>
+          <div class="reveal-item">
+            <span class="reveal-label" data-i18n="qShikiAvg">Ср. оценка на Shiki</span>
+            <span class="reveal-score shiki" id="rv-shiki">—</span>
+          </div>
+        </div>
+        <div class="reveal-diff" id="rv-diff"></div>
+      </div>
+
+      <div class="quiz-result-card" id="quiz-result">
+        <div class="result-big" id="qr-accuracy">—</div>
+        <div class="result-label" data-i18n="qAccuracyLabel">точность угадывания</div>
+        <div class="result-grid">
+          <div class="result-stat">
+            <span class="result-stat-num" id="qr-exact">0</span>
+            <span class="result-stat-lbl" data-i18n="qExact">точно</span>
+          </div>
+          <div class="result-stat">
+            <span class="result-stat-num" id="qr-near">0</span>
+            <span class="result-stat-lbl" data-i18n="qNear">±1 балл</span>
+          </div>
+          <div class="result-stat">
+            <span class="result-stat-num" id="qr-far">0</span>
+            <span class="result-stat-lbl" data-i18n="qFar">мимо</span>
+          </div>
+        </div>
+        <button onclick="startQuiz()">↺ <span data-i18n="qRestart">Начать заново</span></button>
+      </div>
+
+      <div class="quiz-actions" id="quiz-nav-btns" style="display:none">
+        <button class="secondary" onclick="skipQuizCard()" id="quiz-skip-btn">⇒ <span data-i18n="qSkip">Пропустить</span></button>
+        <button onclick="nextQuizCard()" id="quiz-next-btn">→ <span data-i18n="qNext">Следующее</span></button>
+      </div>
+    </div>
+  </div><!-- /quiz-mode -->
+
+  <!-- ── DUEL MODE ───────────────────────────────────────────── -->
+  <div id="duel-mode">
+    <div id="duel-no-profile" class="no-profile-notice">
+      <p>Сначала загрузи профиль Shikimori на вкладке <strong>Тирлист</strong> — потом возвращайся сюда ⚔️</p>
+    </div>
+    <div id="duel-game" style="display:none">
+      <div class="duel-header">
+        <span class="quiz-title" data-i18n="modeDuel">Дуэли</span>
+        <div class="quiz-stats">
+          <span>⚔️ <span class="quiz-stat-num" id="d-round">1</span>/<span id="d-total-rounds">—</span></span>
+          <span>🏆 <span class="quiz-stat-num" id="d-leader-name">—</span></span>
+        </div>
+      </div>
+      <div class="duel-progress-bar"><div class="duel-progress-fill" id="duel-progress-fill"></div></div>
+
+      <div class="duel-arena" id="duel-arena">
+        <div class="duel-side" id="duel-left" onclick="pickDuel(0)">
+          <div id="dl-img-wrap"></div>
+          <div class="duel-win-badge" data-i18n="dWinner">ПОБЕДИТЕЛЬ</div>
+          <div class="duel-side-score-badge" id="dl-score"></div>
+          <div class="duel-side-info">
+            <div class="duel-side-title" id="dl-title"></div>
+            <div class="duel-side-meta" id="dl-meta"></div>
+          </div>
+        </div>
+        <div class="duel-vs">VS</div>
+        <div class="duel-side" id="duel-right" onclick="pickDuel(1)">
+          <div id="dr-img-wrap"></div>
+          <div class="duel-win-badge" data-i18n="dWinner">ПОБЕДИТЕЛЬ</div>
+          <div class="duel-side-score-badge" id="dr-score"></div>
+          <div class="duel-side-info">
+            <div class="duel-side-title" id="dr-title"></div>
+            <div class="duel-side-meta" id="dr-meta"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="duel-result-card" id="duel-result">
+        <div class="duel-result-title" data-i18n="dResultTitle">Твой личный рейтинг</div>
+        <div class="duel-podium" id="duel-podium"></div>
+        <div style="text-align:center">
+          <button onclick="startDuel()">↺ <span data-i18n="dRestart">Новый турнир</span></button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /duel-mode -->
+
+</div>
 <script>
 // ─── i18n ───────────────────────────────────────────────────────────────────
 const STRINGS = {
@@ -388,6 +757,24 @@ const STRINGS = {
     errConnect: 'Не удаётся подключиться к Shikimori. Попробуй позже.',
     showScores: 'Показывать оценки',
     returnTitle: 'Вернуть в пул',
+    modeTierlist: 'Тирлист',
+    modeQuiz: 'Угадай оценку',
+    modeDuel: 'Дуэли',
+    qCorrect: 'угадано',
+    qAvgDiff: 'ср. разрыв',
+    qYourGuess: 'Твоя догадка',
+    qYourReal: 'Оценка в Shiki',
+    qShikiAvg: 'Ср. на Shiki',
+    qAccuracyLabel: 'точность угадывания',
+    qExact: 'точно',
+    qNear: '±1 балл',
+    qFar: 'мимо',
+    qRestart: 'Начать заново',
+    qSkip: 'Пропустить',
+    qNext: 'Следующее',
+    dWinner: 'ПОБЕДИТЕЛЬ',
+    dResultTitle: 'Твой личный рейтинг',
+    dRestart: 'Новый турнир',
   },
   en: {
     tagline: 'Shikimori · Drag & Drop · S/A/B/C/D',
@@ -420,6 +807,24 @@ const STRINGS = {
     errNotFound: 'User not found. Check the nickname.',
     errConnect: 'Cannot connect to Shikimori. Try again later.',
     returnTitle: 'Return to pool',
+    modeTierlist: 'Tierlist',
+    modeQuiz: 'Guess the Score',
+    modeDuel: 'Duels',
+    qCorrect: 'correct',
+    qAvgDiff: 'avg diff',
+    qYourGuess: 'Your Guess',
+    qYourReal: 'Your Shiki Score',
+    qShikiAvg: 'Shiki Avg',
+    qAccuracyLabel: 'guessing accuracy',
+    qExact: 'exact',
+    qNear: '±1 point',
+    qFar: 'off',
+    qRestart: 'Play Again',
+    qSkip: 'Skip',
+    qNext: 'Next',
+    dWinner: 'WINNER',
+    dResultTitle: 'Your Personal Ranking',
+    dRestart: 'New Tournament',
   }
 };
 
@@ -932,6 +1337,349 @@ async function exportImage() {
 document.getElementById('profile-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') loadProfile();
 });
+
+// ── Mode switching ───────────────────────────────────────────────────────────
+var currentMode = 'tierlist';
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('tierlist-mode').style.display = mode === 'tierlist' ? 'block' : 'none';
+  document.getElementById('quiz-mode').style.display     = mode === 'quiz'     ? 'block' : 'none';
+  document.getElementById('duel-mode').style.display     = mode === 'duel'     ? 'block' : 'none';
+
+  document.querySelectorAll('.mode-btn').forEach(function(b) {
+    b.classList.toggle('active', b.id === 'nav-' + mode);
+  });
+
+  if (mode === 'quiz') initQuizMode();
+  if (mode === 'duel') initDuelMode();
+}
+
+// ── QUIZ ─────────────────────────────────────────────────────────────────────
+var quizQueue  = [];
+var quizIndex  = 0;
+var quizGuess  = null;
+var quizStats  = { exact: 0, near: 0, far: 0, totalDiff: 0, answered: 0 };
+
+function initQuizMode() {
+  var hasData = allRates && allRates.length > 0;
+  document.getElementById('quiz-no-profile').style.display = hasData ? 'none' : 'block';
+  document.getElementById('quiz-game').style.display       = hasData ? 'block' : 'none';
+  if (hasData) startQuiz();
+}
+
+function startQuiz() {
+  // Only use rated anime (score > 0)
+  var pool = allRates.filter(function(r) { return r.score > 0 && r.anime; });
+  // Shuffle
+  quizQueue = pool.slice().sort(function() { return Math.random() - 0.5 }).slice(0, 20);
+  quizIndex = 0;
+  quizGuess = null;
+  quizStats = { exact: 0, near: 0, far: 0, totalDiff: 0, answered: 0 };
+
+  document.getElementById('quiz-result').classList.remove('visible');
+  document.getElementById('quiz-nav-btns').style.display = 'none';
+  document.getElementById('q-total').textContent = quizQueue.length;
+  updateQuizCounters();
+  renderQuizCard();
+}
+
+function renderQuizCard() {
+  if (quizIndex >= quizQueue.length) { showQuizResult(); return; }
+  var rate  = quizQueue[quizIndex];
+  var anime = rate.anime;
+  quizGuess = null;
+
+  // Progress
+  var pct = (quizIndex / quizQueue.length) * 100;
+  document.getElementById('quiz-progress-fill').style.width = pct + '%';
+
+  // Image
+  var imgWrap = document.getElementById('qc-img-wrap');
+  if (anime.image && anime.image.preview) {
+    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=440&output=webp';
+    imgWrap.innerHTML = '<img src="' + src + '" alt="">';
+    var img = imgWrap.querySelector('img');
+    img.onload = function() { img.classList.add('loaded'); };
+    img.onerror = function() { imgWrap.innerHTML = '<div class="no-poster">' + (currentLang === 'ru' ? (anime.russian || anime.name) : (anime.name || anime.russian)) + '</div>'; };
+  } else {
+    var ttl = currentLang === 'ru' ? (anime.russian || anime.name || '—') : (anime.name || anime.russian || '—');
+    imgWrap.innerHTML = '<div class="no-poster">' + ttl + '</div>';
+  }
+
+  // Cover
+  var cover = document.getElementById('quiz-cover');
+  cover.textContent = '?';
+  cover.classList.remove('revealed');
+
+  // Title
+  var title = currentLang === 'ru' ? (anime.russian || anime.name || '—') : (anime.name || anime.russian || '—');
+  document.getElementById('qc-title').textContent = title;
+  document.getElementById('qc-year').textContent  = anime.aired_on ? anime.aired_on.slice(0,4) : '';
+
+  // Reveal area
+  var ra = document.getElementById('quiz-reveal');
+  ra.classList.remove('visible');
+
+  // Score buttons
+  var bar = document.getElementById('quiz-score-bar');
+  bar.innerHTML = '';
+  for (var i = 1; i <= 10; i++) {
+    (function(score) {
+      var btn = document.createElement('button');
+      btn.className = 'score-btn';
+      btn.textContent = score;
+      btn.onclick = function() { submitQuizGuess(score); };
+      bar.appendChild(btn);
+    })(i);
+  }
+
+  document.getElementById('quiz-nav-btns').style.display = 'none';
+  document.getElementById('quiz-result').classList.remove('visible');
+}
+
+function submitQuizGuess(guess) {
+  if (quizGuess !== null) return; // already answered
+  quizGuess = guess;
+
+  // Highlight selected
+  document.querySelectorAll('.score-btn').forEach(function(b) {
+    if (parseInt(b.textContent) === guess) b.classList.add('selected');
+    b.onclick = null; // disable further clicks
+  });
+
+  var rate  = quizQueue[quizIndex];
+  var real  = rate.score;
+  var diff  = Math.abs(guess - real);
+  var shikiAvg = rate.anime.score ? parseFloat(rate.anime.score).toFixed(1) : '—';
+
+  // Stats
+  quizStats.answered++;
+  quizStats.totalDiff += diff;
+  if (diff === 0) quizStats.exact++;
+  else if (diff <= 1) quizStats.near++;
+  else quizStats.far++;
+
+  // Reveal cover
+  var cover = document.getElementById('quiz-cover');
+  cover.textContent = real;
+  cover.classList.add('revealed');
+
+  // Reveal area
+  document.getElementById('rv-guess').textContent = guess;
+  document.getElementById('rv-real').textContent  = real;
+  document.getElementById('rv-shiki').textContent = shikiAvg;
+
+  var diffTxt;
+  if (diff === 0) diffTxt = '🎯 Точное попадание!';
+  else if (diff === 1) diffTxt = '👌 Почти! Разрыв: ' + diff + ' балл';
+  else diffTxt = '😬 Разрыв: <strong>' + diff + '</strong> балл' + (diff >= 5 ? 'ов' : diff >= 2 ? 'а' : '');
+  document.getElementById('rv-diff').innerHTML = diffTxt;
+  document.getElementById('quiz-reveal').classList.add('visible');
+
+  updateQuizCounters();
+
+  // Show nav
+  document.getElementById('quiz-nav-btns').style.display = 'flex';
+}
+
+function skipQuizCard() {
+  quizIndex++;
+  renderQuizCard();
+}
+
+function nextQuizCard() {
+  quizIndex++;
+  renderQuizCard();
+}
+
+function updateQuizCounters() {
+  document.getElementById('q-correct').textContent = quizStats.exact;
+  document.getElementById('q-done').textContent    = quizStats.answered;
+  var avgDiff = quizStats.answered > 0 ? (quizStats.totalDiff / quizStats.answered).toFixed(1) : '—';
+  document.getElementById('q-avg-diff').textContent = avgDiff;
+}
+
+function showQuizResult() {
+  var total   = quizStats.answered;
+  var pct     = total > 0 ? Math.round((quizStats.exact + quizStats.near * 0.5) / total * 100) : 0;
+  document.getElementById('qr-accuracy').textContent = pct + '%';
+  document.getElementById('qr-exact').textContent    = quizStats.exact;
+  document.getElementById('qr-near').textContent     = quizStats.near;
+  document.getElementById('qr-far').textContent      = quizStats.far;
+  document.getElementById('quiz-progress-fill').style.width = '100%';
+  document.getElementById('quiz-reveal').classList.remove('visible');
+  document.getElementById('quiz-nav-btns').style.display = 'none';
+  document.getElementById('quiz-result').classList.add('visible');
+}
+
+// ── DUEL ─────────────────────────────────────────────────────────────────────
+var duelPairs    = [];
+var duelRound    = 0;
+var duelWins     = {}; // id -> wins count
+var duelPicked   = false;
+
+function initDuelMode() {
+  var hasData = allRates && allRates.length >= 4;
+  document.getElementById('duel-no-profile').style.display = hasData ? 'none' : 'block';
+  document.getElementById('duel-game').style.display       = hasData ? 'block' : 'none';
+  if (hasData) startDuel();
+}
+
+function startDuel() {
+  // Build round-robin-ish random pairs from pool (max 30 rounds)
+  var pool = allRates.filter(function(r) { return r.anime; });
+  pool = pool.slice().sort(function() { return Math.random() - 0.5 });
+
+  duelPairs = [];
+  duelWins  = {};
+  pool.forEach(function(r) { duelWins[r.id] = 0; });
+
+  var maxRounds = Math.min(30, Math.floor(pool.length / 2) * 2);
+  for (var i = 0; i < maxRounds; i += 2) {
+    duelPairs.push([pool[i], pool[i + 1]]);
+  }
+  // If odd, add a few more random pairs
+  if (duelPairs.length < 15 && pool.length >= 4) {
+    for (var j = 0; j < 10 && duelPairs.length < 20; j++) {
+      var a = pool[Math.floor(Math.random() * pool.length)];
+      var b = pool[Math.floor(Math.random() * pool.length)];
+      if (a.id !== b.id) duelPairs.push([a, b]);
+    }
+  }
+
+  duelRound  = 0;
+  duelPicked = false;
+
+  document.getElementById('duel-result').classList.remove('visible');
+  document.getElementById('duel-arena').style.display = 'flex';
+  document.getElementById('d-total-rounds').textContent = duelPairs.length;
+  renderDuelRound();
+}
+
+function renderDuelRound() {
+  if (duelRound >= duelPairs.length) { showDuelResult(); return; }
+  var pair  = duelPairs[duelRound];
+  duelPicked = false;
+
+  var pct = (duelRound / duelPairs.length) * 100;
+  document.getElementById('duel-progress-fill').style.width = pct + '%';
+  document.getElementById('d-round').textContent = duelRound + 1;
+
+  // Update leader
+  var topId = Object.keys(duelWins).sort(function(a,b) { return duelWins[b] - duelWins[a]; })[0];
+  var topRate = allRates.find(function(r) { return String(r.id) === String(topId); });
+  if (topRate && duelWins[topId] > 0) {
+    var topName = currentLang === 'ru' ? (topRate.anime.russian || topRate.anime.name) : (topRate.anime.name || topRate.anime.russian);
+    document.getElementById('d-leader-name').textContent = topName ? topName.substring(0,20) + (topName.length > 20 ? '…' : '') : '—';
+  }
+
+  renderDuelSide('left',  pair[0]);
+  renderDuelSide('right', pair[1]);
+
+  // Reset states
+  document.getElementById('duel-left').className  = 'duel-side';
+  document.getElementById('duel-right').className = 'duel-side';
+  document.getElementById('duel-left').onclick  = function() { pickDuel(0); };
+  document.getElementById('duel-right').onclick = function() { pickDuel(1); };
+}
+
+function renderDuelSide(side, rate) {
+  var anime   = rate.anime;
+  var pfx     = side === 'left' ? 'dl' : 'dr';
+  var imgWrap = document.getElementById(pfx + '-img-wrap');
+  var title   = currentLang === 'ru' ? (anime.russian || anime.name || '—') : (anime.name || anime.russian || '—');
+  var year    = anime.aired_on ? anime.aired_on.slice(0,4) : '';
+  var kind    = anime.kind ? anime.kind.toUpperCase() : '';
+
+  if (anime.image && anime.image.preview) {
+    var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=400&output=webp';
+    imgWrap.innerHTML = '<img src="' + src + '" alt="">';
+    var img = imgWrap.querySelector('img');
+    img.onload = function() { img.classList.add('loaded'); };
+    img.onerror = function() { imgWrap.innerHTML = '<div class="no-poster">' + title + '</div>'; };
+  } else {
+    imgWrap.innerHTML = '<div class="no-poster">' + title + '</div>';
+  }
+
+  document.getElementById(pfx + '-title').textContent = title;
+  document.getElementById(pfx + '-meta').textContent  = [kind, year].filter(Boolean).join(' · ');
+  var scoreBadge = document.getElementById(pfx === 'dl' ? 'dl-score' : 'dr-score');
+  scoreBadge.textContent = rate.score > 0 ? rate.score : '—';
+  scoreBadge.style.opacity = '0'; // hidden until reveal
+}
+
+function pickDuel(idx) {
+  if (duelPicked) return;
+  duelPicked = true;
+
+  var pair     = duelPairs[duelRound];
+  var winner   = pair[idx];
+  var loser    = pair[1 - idx];
+  duelWins[winner.id] = (duelWins[winner.id] || 0) + 1;
+
+  // Visual feedback
+  var winEl  = idx === 0 ? document.getElementById('duel-left')  : document.getElementById('duel-right');
+  var loseEl = idx === 0 ? document.getElementById('duel-right') : document.getElementById('duel-left');
+  winEl.classList.add('winner');
+  loseEl.classList.add('loser');
+
+  // Show scores
+  document.getElementById('dl-score').style.opacity = '1';
+  document.getElementById('dr-score').style.opacity = '1';
+
+  // Disable clicks
+  document.getElementById('duel-left').onclick  = null;
+  document.getElementById('duel-right').onclick = null;
+
+  setTimeout(function() {
+    duelRound++;
+    renderDuelRound();
+  }, 900);
+}
+
+function showDuelResult() {
+  document.getElementById('duel-arena').style.display = 'none';
+  document.getElementById('duel-progress-fill').style.width = '100%';
+
+  // Sort by wins
+  var ranked = allRates.filter(function(r) { return duelWins[r.id] !== undefined; })
+    .sort(function(a, b) { return (duelWins[b.id] || 0) - (duelWins[a.id] || 0) });
+
+  var podium = document.getElementById('duel-podium');
+  podium.innerHTML = '';
+
+  ranked.slice(0, 10).forEach(function(rate, i) {
+    var anime = rate.anime;
+    var title = currentLang === 'ru' ? (anime.russian || anime.name || '—') : (anime.name || anime.russian || '—');
+    var wins  = duelWins[rate.id] || 0;
+    var row   = document.createElement('div');
+    row.className = 'podium-row';
+
+    var imgHTML = '';
+    if (anime.image && anime.image.preview) {
+      var src = 'https://images.weserv.nl/?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '&w=80&output=webp';
+      imgHTML = '<img class="podium-img" src="' + src + '" alt="">';
+    } else {
+      imgHTML = '<div class="podium-img" style="background:var(--surface2);border-radius:4px"></div>';
+    }
+
+    var medals = ['🥇', '🥈', '🥉'];
+    var rankTxt = i < 3 ? medals[i] : (i + 1);
+
+    row.innerHTML =
+      '<span class="podium-rank">' + rankTxt + '</span>' +
+      imgHTML +
+      '<div class="podium-info">' +
+        '<div class="podium-title">' + title + '</div>' +
+        '<div class="podium-wins">' + wins + ' побед · оценка ' + (rate.score || '—') + '</div>' +
+      '</div>' +
+      '<span class="podium-score-badge">' + wins + '</span>';
+    podium.appendChild(row);
+  });
+
+  document.getElementById('duel-result').classList.add('visible');
+}
 </script>
 </body>
 </html>
