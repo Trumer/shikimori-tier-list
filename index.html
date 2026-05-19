@@ -41,10 +41,28 @@
   }
   .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
-  header { margin-bottom: 2.5rem; }
+  header { margin-bottom: 2.5rem; display: flex; align-items: flex-start; justify-content: space-between; }
+  .header-left {}
   .logo { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.05em; line-height: 1; }
   .logo span { color: var(--accent); }
   .tagline { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* Language toggle */
+  .lang-toggle {
+    display: flex; gap: 4px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 4px; margin-top: 6px;
+  }
+  .lang-btn {
+    background: transparent; border: none; color: var(--text-muted);
+    font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 600;
+    padding: 4px 10px; height: auto; min-height: unset; border-radius: 4px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .lang-btn.active {
+    background: var(--accent); color: #0d0d0f;
+  }
+  .lang-btn:hover:not(.active) { color: var(--text); }
 
   .import-card {
     background: var(--surface); border: 1px solid var(--border);
@@ -144,7 +162,13 @@
   .anime-card:hover { transform: translateY(-3px); border-color: var(--border-hover); }
   .anime-card.dragging { opacity: 0.3; transform: scale(0.92); }
   .anime-card:active { cursor: grabbing; }
-  .anime-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: var(--surface); }
+  .anime-card img {
+    width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
+    background: var(--surface);
+    /* fade-in when loaded */
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .anime-card img.loaded { opacity: 1; }
   .anime-card .no-poster {
     width: 100%; aspect-ratio: 2/3; display: flex; align-items: center; justify-content: center;
     background: var(--surface2); font-size: 10px; color: var(--text-muted);
@@ -156,6 +180,14 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .anime-card .card-year { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+  /* dropped badge */
+  .status-badge {
+    position: absolute; bottom: 28px; left: 0; right: 0;
+    background: rgba(255,107,107,0.85); color: #fff;
+    font-size: 8px; font-weight: 700; text-align: center;
+    padding: 2px 0; letter-spacing: 0.04em; pointer-events: none;
+  }
 
   .score-badge {
     position: absolute; top: 4px; left: 4px;
@@ -188,6 +220,7 @@
     .logo { font-size: 2.4rem; }
     .input-row { flex-direction: column; }
     .actions-right { margin-left: 0; }
+    header { flex-direction: column; gap: 12px; }
   }
 </style>
 </head>
@@ -195,80 +228,92 @@
 <div class="page">
 
   <header>
-    <div class="logo">ANIME<span>TIER</span></div>
-    <div class="tagline">Shikimori · Drag & Drop · S/A/B/C/D</div>
+    <div class="header-left">
+      <div class="logo">ANIME<span>TIER</span></div>
+      <div class="tagline" data-i18n="tagline">Shikimori · Drag & Drop · S/A/B/C/D</div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
   </header>
 
   <div class="import-card">
-    <h2>Загрузить профиль</h2>
+    <h2 data-i18n="loadProfile">Загрузить профиль</h2>
     <div class="input-row">
-      <input type="text" id="profile-input" placeholder="shikimori.one/nickname или просто nickname" />
-      <button id="load-btn" onclick="loadProfile()">&#9654; Загрузить</button>
+      <input type="text" id="profile-input" data-i18n-placeholder="inputPlaceholder" placeholder="shikimori.one/nickname или просто nickname" />
+      <button id="load-btn" onclick="loadProfile()">&#9654; <span data-i18n="loadBtn">Загрузить</span></button>
     </div>
     <div class="filters" id="filters" style="display:none">
-      <label>Оценка:</label>
+      <label data-i18n="filterScore">Оценка:</label>
       <select id="score-filter" onchange="applyFilter()">
-        <option value="0">Все</option>
+        <option value="0" data-i18n="filterAll">Все</option>
         <option value="7">7+</option>
         <option value="8">8+</option>
         <option value="9">9+</option>
       </select>
-      <label>Тип:</label>
+      <label data-i18n="filterType">Тип:</label>
       <select id="kind-filter" onchange="applyFilter()">
-        <option value="">Все</option>
+        <option value="" data-i18n="filterAll">Все</option>
         <option value="tv">TV</option>
-        <option value="movie">Фильмы</option>
+        <option value="movie" data-i18n="filterMovies">Фильмы</option>
         <option value="ova">OVA / ONA</option>
+      </select>
+      <label data-i18n="filterStatus">Статус:</label>
+      <select id="status-filter" onchange="applyFilter()">
+        <option value="" data-i18n="filterAll">Все</option>
+        <option value="completed" data-i18n="filterCompleted">Просмотрено</option>
+        <option value="dropped" data-i18n="filterDropped">Брошено</option>
       </select>
     </div>
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="progress-label" id="progress-label">Загружаем...</div>
+      <div class="progress-label" id="progress-label" data-i18n="loading">Загружаем...</div>
     </div>
     <div class="error" id="error-msg"></div>
   </div>
 
   <div class="pool-header">
-    <span class="pool-title">Пул аниме</span>
+    <span class="pool-title" data-i18n="poolTitle">Пул аниме</span>
     <span class="pool-meta" id="pool-meta"></span>
   </div>
   <div class="pool-search" id="pool-search-wrap" style="display:none">
-    <input type="text" id="pool-search" placeholder="Поиск по пулу..." oninput="applyFilter()" />
+    <input type="text" id="pool-search" data-i18n-placeholder="searchPlaceholder" placeholder="Поиск по пулу..." oninput="applyFilter()" />
   </div>
   <div class="pool-wrap" id="pool" data-zone="pool">
-    <div class="empty-hint">Загрузи профиль — аниме появятся здесь</div>
+    <div class="empty-hint" data-i18n="poolHint">Загрузи профиль — аниме появятся здесь</div>
   </div>
 
   <div class="tierlist-section">
-    <div class="tierlist-label">Тирлист</div>
+    <div class="tierlist-label" data-i18n="tierlistLabel">Тирлист</div>
     <div id="tierlist">
       <div class="tier-row tier-S">
         <div class="tier-label">S</div>
-        <div class="tier-drop" data-zone="S"><div class="empty-hint">Перетащи сюда</div></div>
+        <div class="tier-drop" data-zone="S"><div class="empty-hint" data-i18n="dropHint">Перетащи сюда</div></div>
       </div>
       <div class="tier-row tier-A">
         <div class="tier-label">A</div>
-        <div class="tier-drop" data-zone="A"><div class="empty-hint">Перетащи сюда</div></div>
+        <div class="tier-drop" data-zone="A"><div class="empty-hint" data-i18n="dropHint">Перетащи сюда</div></div>
       </div>
       <div class="tier-row tier-B">
         <div class="tier-label">B</div>
-        <div class="tier-drop" data-zone="B"><div class="empty-hint">Перетащи сюда</div></div>
+        <div class="tier-drop" data-zone="B"><div class="empty-hint" data-i18n="dropHint">Перетащи сюда</div></div>
       </div>
       <div class="tier-row tier-C">
         <div class="tier-label">C</div>
-        <div class="tier-drop" data-zone="C"><div class="empty-hint">Перетащи сюда</div></div>
+        <div class="tier-drop" data-zone="C"><div class="empty-hint" data-i18n="dropHint">Перетащи сюда</div></div>
       </div>
       <div class="tier-row tier-D">
         <div class="tier-label">D</div>
-        <div class="tier-drop" data-zone="D"><div class="empty-hint">Перетащи сюда</div></div>
+        <div class="tier-drop" data-zone="D"><div class="empty-hint" data-i18n="dropHint">Перетащи сюда</div></div>
       </div>
     </div>
   </div>
 
   <div class="actions">
-    <button class="secondary" onclick="resetTierlist()">&#8617; Сбросить тирлист</button>
+    <button class="secondary" onclick="resetTierlist()">&#8617; <span data-i18n="resetBtn">Сбросить тирлист</span></button>
     <div class="actions-right">
-      <button onclick="exportImage()">&#11015; Сохранить как PNG</button>
+      <button onclick="exportImage()">&#11015; <span data-i18n="exportBtn">Сохранить как PNG</span></button>
     </div>
   </div>
 
@@ -276,11 +321,100 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+// ─── i18n ───────────────────────────────────────────────────────────────────
+const STRINGS = {
+  ru: {
+    tagline: 'Shikimori · Drag & Drop · S/A/B/C/D',
+    loadProfile: 'Загрузить профиль',
+    inputPlaceholder: 'shikimori.one/nickname или просто nickname',
+    loadBtn: 'Загрузить',
+    filterScore: 'Оценка:',
+    filterType: 'Тип:',
+    filterStatus: 'Статус:',
+    filterAll: 'Все',
+    filterMovies: 'Фильмы',
+    filterCompleted: 'Просмотрено',
+    filterDropped: 'Брошено',
+    loading: 'Загружаем...',
+    poolTitle: 'Пул аниме',
+    searchPlaceholder: 'Поиск по пулу...',
+    poolHint: 'Загрузи профиль — аниме появятся здесь',
+    tierlistLabel: 'Тирлист',
+    dropHint: 'Перетащи сюда',
+    resetBtn: 'Сбросить тирлист',
+    exportBtn: 'Сохранить как PNG',
+    allDone: 'Все аниме разложены по рядам!',
+    nothingFound: 'Ничего не найдено',
+    titles: 'тайтлов',
+    searching: 'Ищем профиль...',
+    loaded: 'Загружено',
+    anime: 'аниме',
+    generating: 'Генерируем...',
+    droppedLabel: 'Брошено',
+    errNotFound: 'Пользователь не найден. Проверь никнейм.',
+    errConnect: 'Не удаётся подключиться к Shikimori. Попробуй позже.',
+    returnTitle: 'Вернуть в пул',
+  },
+  en: {
+    tagline: 'Shikimori · Drag & Drop · S/A/B/C/D',
+    loadProfile: 'Load Profile',
+    inputPlaceholder: 'shikimori.one/nickname or just nickname',
+    loadBtn: 'Load',
+    filterScore: 'Score:',
+    filterType: 'Type:',
+    filterStatus: 'Status:',
+    filterAll: 'All',
+    filterMovies: 'Movies',
+    filterCompleted: 'Completed',
+    filterDropped: 'Dropped',
+    loading: 'Loading...',
+    poolTitle: 'Anime Pool',
+    searchPlaceholder: 'Search pool...',
+    poolHint: 'Load a profile — anime will appear here',
+    tierlistLabel: 'Tierlist',
+    dropHint: 'Drop here',
+    resetBtn: 'Reset Tierlist',
+    exportBtn: 'Save as PNG',
+    allDone: 'All anime placed in tiers!',
+    nothingFound: 'Nothing found',
+    titles: 'titles',
+    searching: 'Searching profile...',
+    loaded: 'Loaded',
+    anime: 'anime',
+    generating: 'Generating...',
+    droppedLabel: 'Dropped',
+    errNotFound: 'User not found. Check the nickname.',
+    errConnect: 'Cannot connect to Shikimori. Try again later.',
+    returnTitle: 'Return to pool',
+  }
+};
+
+let currentLang = 'ru';
+function t(key) { return STRINGS[currentLang][key] || STRINGS.ru[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.textContent === lang.toUpperCase());
+  });
+  // Update static elements
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  // Re-render pool with new language
+  applyFilter();
+  syncEmptyHints();
+}
+
+// ─── Core ────────────────────────────────────────────────────────────────────
 const API_BASE = 'https://shikimori.one/api';
 let allRates = [];
 let draggedCard = null;
 
-// Multi-proxy fallback — tries each proxy until one works
+// Proxies — only for API calls, NOT for images
 const PROXIES = [
   function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
   function(u) { return 'https://corsproxy.io/?url=' + encodeURIComponent(u); },
@@ -293,16 +427,14 @@ async function apiFetch(path) {
   for (var i = 0; i < PROXIES.length; i++) {
     try {
       var res = await fetch(PROXIES[i](url));
-      if (res.status === 404) {
-        throw new Error('Пользователь не найден. Проверь никнейм.');
-      }
+      if (res.status === 404) throw new Error(t('errNotFound'));
       if (res.ok) return res;
     } catch(e) {
-      if (e.message.indexOf('не найден') !== -1) throw e;
+      if (e.message === t('errNotFound') || e.message === STRINGS.ru.errNotFound) throw e;
       lastErr = e;
     }
   }
-  throw lastErr || new Error('Не удаётся подключиться к Shikimori. Попробуй позже.');
+  throw lastErr || new Error(t('errConnect'));
 }
 
 function parseUsername(s) {
@@ -333,41 +465,92 @@ function setError(msg) {
 
 function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
+// ─── Fast parallel page fetcher ──────────────────────────────────────────────
+async function fetchAllPages(userId, status) {
+  // First page to check total
+  var r0 = await apiFetch('/users/' + userId + '/anime_rates?status=' + status + '&limit=100&page=1');
+  if (!r0.ok) return [];
+  var batch0 = await r0.json();
+  if (!batch0.length) return [];
+  if (batch0.length < 100) return batch0;
+
+  // Estimate max pages & fetch remaining in parallel (up to 10 pages at once)
+  var all = batch0.slice();
+  var page = 2;
+  while (true) {
+    // Fetch up to 5 pages in parallel
+    var pages = [];
+    for (var i = 0; i < 5; i++) pages.push(page + i);
+    var results = await Promise.all(pages.map(function(p) {
+      return apiFetch('/users/' + userId + '/anime_rates?status=' + status + '&limit=100&page=' + p)
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .catch(function() { return []; });
+    }));
+    var done = false;
+    for (var j = 0; j < results.length; j++) {
+      if (!results[j].length) { done = true; break; }
+      all = all.concat(results[j]);
+      if (results[j].length < 100) { done = true; break; }
+    }
+    if (done) break;
+    page += 5;
+    // Small delay to be nice to the API
+    await sleep(150);
+    setProgress(Math.min(20 + Math.floor(all.length / 5), 88),
+      t('loaded') + ' ' + all.length + ' ' + t('anime') + '...');
+  }
+  return all;
+}
+
 async function loadProfile() {
   var raw = document.getElementById('profile-input').value;
   if (!raw.trim()) return;
   var username = parseUsername(raw);
   setError('');
-  setProgress(5, 'Ищем профиль...');
+  setProgress(5, t('searching'));
   document.getElementById('load-btn').disabled = true;
 
   try {
     var userRes = await apiFetch('/users/' + encodeURIComponent(username));
     var user = await userRes.json();
 
-    setProgress(20, 'Загружаем список ' + user.nickname + '...');
+    setProgress(15, t('loaded') + ' ' + user.nickname + '...');
 
-    var all = [], page = 1;
-    while (true) {
-      var r = await apiFetch('/users/' + user.id + '/anime_rates?status=completed&limit=100&page=' + page);
-      if (!r.ok) break;
-      var batch = await r.json();
-      if (!batch.length) break;
-      all = all.concat(batch);
-      setProgress(Math.min(20 + page * 12, 88), 'Загружено ' + all.length + ' аниме...');
-      if (batch.length < 100) break;
-      page++;
-      await sleep(400);
-    }
+    // Load completed + dropped in parallel
+    var [completed, dropped] = await Promise.all([
+      fetchAllPages(user.id, 'completed').then(function(a) {
+        return a.map(function(r) { r._status = 'completed'; return r; });
+      }),
+      fetchAllPages(user.id, 'dropped').then(function(a) {
+        return a.map(function(r) { r._status = 'dropped'; return r; });
+      })
+    ]);
 
-    allRates = all;
+    var combined = completed.concat(dropped);
+
+    // ── Deduplicate by anime.id — keep highest-score entry ──
+    var seen = {};
+    var deduped = [];
+    combined.forEach(function(r) {
+      var aid = r.anime && r.anime.id;
+      if (!aid) { deduped.push(r); return; }
+      if (!seen[aid]) { seen[aid] = r; deduped.push(r); }
+      else if ((r.score || 0) > (seen[aid].score || 0)) {
+        // Replace with higher-scored entry
+        var idx = deduped.indexOf(seen[aid]);
+        if (idx !== -1) deduped[idx] = r;
+        seen[aid] = r;
+      }
+    });
+
+    allRates = deduped;
     document.getElementById('filters').style.display = 'flex';
     document.getElementById('pool-search-wrap').style.display = 'block';
     applyFilter();
     setProgress(0);
 
   } catch(e) {
-    setError(e.message || 'Ошибка загрузки. Попробуй позже.');
+    setError(e.message || t('errConnect'));
     setProgress(0);
   }
   document.getElementById('load-btn').disabled = false;
@@ -376,11 +559,13 @@ async function loadProfile() {
 function applyFilter() {
   var minScore = parseInt(document.getElementById('score-filter').value) || 0;
   var kind = document.getElementById('kind-filter').value;
+  var status = document.getElementById('status-filter').value;
   var q = (document.getElementById('pool-search').value || '').toLowerCase();
 
   var filtered = allRates.filter(function(r) {
     if (minScore && (r.score || 0) < minScore) return false;
     if (kind && r.anime && r.anime.kind !== kind) return false;
+    if (status && r._status !== status) return false;
     return true;
   });
 
@@ -392,12 +577,13 @@ function renderPool(rates, q) {
   pool.innerHTML = '';
 
   var visible = q ? rates.filter(function(r) {
-    var t = ((r.anime && r.anime.russian) || '' + ' ' + (r.anime && r.anime.name) || '').toLowerCase();
-    return t.indexOf(q) !== -1;
+    var ru = (r.anime && r.anime.russian) || '';
+    var en = (r.anime && r.anime.name) || '';
+    return (ru + ' ' + en).toLowerCase().indexOf(q) !== -1;
   }) : rates;
 
   if (!visible.length) {
-    pool.innerHTML = '<div class="empty-hint">Ничего не найдено</div>';
+    pool.innerHTML = '<div class="empty-hint">' + t('nothingFound') + '</div>';
     document.getElementById('pool-meta').textContent = '';
     return;
   }
@@ -408,7 +594,7 @@ function renderPool(rates, q) {
   });
 
   var n = pool.querySelectorAll('.anime-card').length;
-  document.getElementById('pool-meta').textContent = n ? n + ' тайтлов' : '';
+  document.getElementById('pool-meta').textContent = n ? n + ' ' + t('titles') : '';
   syncEmptyHints();
 }
 
@@ -419,12 +605,17 @@ function makeCard(rate) {
   div.draggable = true;
   div.dataset.rateId = rate.id;
 
-  var title = anime.russian || anime.name || '—';
+  // Title: prefer Russian if lang=ru, otherwise English
+  var title = currentLang === 'ru'
+    ? (anime.russian || anime.name || '—')
+    : (anime.name || anime.russian || '—');
   var year  = anime.aired_on ? anime.aired_on.slice(0,4) : '';
 
   var posterHTML;
   if (anime.image && anime.image.preview) {
-    posterHTML = '<img src="https://api.allorigins.win/raw?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview) + '" alt="" crossorigin="anonymous" loading="lazy">';
+    // Direct URL — much faster than allorigins proxy for images
+    var imgSrc = 'https://shikimori.one' + anime.image.preview;
+    posterHTML = '<img src="' + imgSrc + '" alt="" loading="lazy" crossorigin="anonymous">';
   } else {
     posterHTML = '<div class="no-poster">' + title + '</div>';
   }
@@ -435,9 +626,29 @@ function makeCard(rate) {
   else if (rate.score > 0) scoreCls = 'low';
   var scoreHTML = rate.score > 0 ? '<div class="score-badge ' + scoreCls + '">' + rate.score + '</div>' : '';
 
-  div.innerHTML = posterHTML + scoreHTML +
+  var droppedBadge = rate._status === 'dropped'
+    ? '<div class="status-badge">' + t('droppedLabel') + '</div>' : '';
+
+  div.innerHTML = posterHTML + scoreHTML + droppedBadge +
     '<div class="card-info"><div class="card-title">' + title + '</div><div class="card-year">' + year + '</div></div>' +
-    '<button class="return-btn" title="Вернуть в пул">&#8617;</button>';
+    '<button class="return-btn" title="' + t('returnTitle') + '">&#8617;</button>';
+
+  // Fade-in on image load
+  var img = div.querySelector('img');
+  if (img) {
+    img.addEventListener('load', function() { img.classList.add('loaded'); });
+    img.addEventListener('error', function() {
+      // If direct load fails, fall back to proxy
+      if (!img.dataset.proxied) {
+        img.dataset.proxied = '1';
+        img.src = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://shikimori.one' + anime.image.preview);
+      } else {
+        img.replaceWith(Object.assign(document.createElement('div'), {
+          className: 'no-poster', textContent: title
+        }));
+      }
+    });
+  }
 
   div.querySelector('.return-btn').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -507,7 +718,7 @@ function syncEmptyHints() {
     var hint    = zone.querySelector('.empty-hint');
     if (!hasCard && !hint) {
       var h = document.createElement('div');
-      h.className = 'empty-hint'; h.textContent = 'Перетащи сюда';
+      h.className = 'empty-hint'; h.textContent = t('dropHint');
       zone.appendChild(h);
     } else if (hasCard && hint) {
       hint.remove();
@@ -518,7 +729,7 @@ function syncEmptyHints() {
   var hint    = pool.querySelector('.empty-hint');
   if (!hasCard && !hint) {
     var h = document.createElement('div');
-    h.className = 'empty-hint'; h.textContent = 'Все аниме разложены по рядам!';
+    h.className = 'empty-hint'; h.textContent = t('allDone');
     pool.appendChild(h);
   } else if (hasCard && hint) {
     hint.remove();
@@ -527,7 +738,7 @@ function syncEmptyHints() {
 
 function updatePoolMeta() {
   var n = document.getElementById('pool').querySelectorAll('.anime-card').length;
-  document.getElementById('pool-meta').textContent = n ? n + ' тайтлов' : '';
+  document.getElementById('pool-meta').textContent = n ? n + ' ' + t('titles') : '';
 }
 
 function resetTierlist() {
@@ -543,7 +754,7 @@ function resetTierlist() {
 async function exportImage() {
   var btn = document.querySelector('button[onclick="exportImage()"]');
   btn.disabled = true;
-  btn.textContent = 'Генерируем...';
+  btn.querySelector('[data-i18n]').textContent = t('generating');
   try {
     var tierlist = document.getElementById('tierlist');
     var canvas = await html2canvas(tierlist, {
@@ -557,7 +768,7 @@ async function exportImage() {
     alert('Не удалось сохранить — сделай скриншот вручную');
   }
   btn.disabled = false;
-  btn.textContent = 'Сохранить как PNG';
+  btn.querySelector('[data-i18n]').textContent = t('exportBtn');
 }
 
 document.getElementById('profile-input').addEventListener('keydown', function(e) {
